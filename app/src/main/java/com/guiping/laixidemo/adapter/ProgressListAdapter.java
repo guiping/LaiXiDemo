@@ -28,8 +28,8 @@ import java.util.function.LongUnaryOperator;
  * Describe:
  */
 public class ProgressListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private final int ITEM_HEAD_TYPE = 1;
-    private final int ITEM_DETAILS_TYPE = 2;
+    private final int ITEM_HEAD_TYPE = 0;
+    private final int ITEM_DETAILS_TYPE = 1;
 
     private LayoutInflater inflater;
     private List<ProgressEntity> mList;
@@ -70,11 +70,11 @@ public class ProgressListAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             UpdateProgressHaldler updateProgressHaldler = updateProgressBar(detailsViewHolder.pbar_details, mList.get(holder.getLayoutPosition() - 1));
             ((DetailsViewHolder) holder).tv_remove.setOnClickListener(view -> {
                 if (holder.getLayoutPosition() - 1 > 0)
-                    updateProgressHaldler.removeMessages(mList.get(holder.getLayoutPosition() - 1).id);  //删除handler任务
+                    updateProgressHaldler.removeMessages(mList.get(holder.getLayoutPosition() - 1).itemIndex);  //删除handler任务
                 //删除item数据
                 removeItem(holder.getLayoutPosition());
             });
-            detailsViewHolder.tv_id.setText(mList.get(holder.getLayoutPosition() - 1).id + "");
+            detailsViewHolder.tv_id.setText(mList.get(holder.getLayoutPosition() - 1).itemIndex + "");
         }
     }
 
@@ -83,7 +83,7 @@ public class ProgressListAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         return mList.size() + 1;
     }
 
-    private class HeadViewHolder extends RecyclerView.ViewHolder {
+    private static class HeadViewHolder extends RecyclerView.ViewHolder {
         Button btn_addItem;
 
         public HeadViewHolder(@NonNull View itemView) {
@@ -104,7 +104,7 @@ public class ProgressListAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         notifyItemRemoved(remPosition);
     }
 
-    private class DetailsViewHolder extends RecyclerView.ViewHolder {
+    private static class DetailsViewHolder extends RecyclerView.ViewHolder {
         private TextView tv_id;
         private TextView tv_remove;
         private ProgressBar pbar_details;
@@ -120,7 +120,7 @@ public class ProgressListAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     private UpdateProgressHaldler updateProgressBar(ProgressBar progressBar, ProgressEntity progressEntity) {
         UpdateProgressHaldler updateProgressHaldler = new UpdateProgressHaldler(progressBar, progressEntity);
         Message message = Message.obtain();
-        message.what = progressEntity.id;
+        message.what = progressEntity.itemIndex;
         updateProgressHaldler.sendMessageDelayed(message, 1000);
         return updateProgressHaldler;
     }
@@ -142,14 +142,14 @@ public class ProgressListAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
 //            ProgressBar progressBar =  progressBarWeakReference.get();
-            if (msg.what == mProgressEntity.id) {
+            if (msg.what == mProgressEntity.itemIndex) {
                 if (mProgressBar.getProgress() < PROGRESS_MAX) {
                     ProgressBar progressBar = mProgressBar;
                     if (progressBar != null) {
                         progressBar.setProgress(progressBar.getProgress() + progressInterval);
                         mProgressEntity.curProgress = progressBar.getProgress();  //保存当前的进度
                         Message message = Message.obtain();
-                        message.what = mProgressEntity.id;
+                        message.what = mProgressEntity.itemIndex;
                         sendMessageDelayed(message, 1000);
                     }
                 } else {

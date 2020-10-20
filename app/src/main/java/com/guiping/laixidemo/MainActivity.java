@@ -42,15 +42,18 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mList = new ArrayList<>();
-        mSharedPreferences = getSharedPreferences("progressData", Context.MODE_PRIVATE);
+        initListData();
         initRview();
+    }
+
+    private void initListData() {
+        mList = new ArrayList<>();
+        mSharedPreferences = getSharedPreferences(SAVADATA_NAME, Context.MODE_PRIVATE);
         List<ProgressEntity> tempDataList = getSaveDataList(SAVADATA_NAME);
         if (tempDataList != null && tempDataList.size() > 0) {
             mList.addAll(tempDataList);
-            mProgressListAdapter.notifyDataSetChanged();
+          //  mProgressListAdapter.notifyDataSetChanged();
         }
-
     }
 
     private void initRview() {
@@ -62,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAddItem() {
                 ProgressEntity progressEntity = new ProgressEntity();
-                progressEntity.id = mList.size() + 1;
+                progressEntity.itemIndex = mList.size() + 1;
                 if ((mList.size() + 1) % 2 == 0) {
                     progressEntity.progressTime = 20;
                 } else {

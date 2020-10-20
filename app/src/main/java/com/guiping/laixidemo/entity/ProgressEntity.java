@@ -8,7 +8,7 @@ import java.io.Serializable;
  * Describe:
  */
 public class ProgressEntity implements Serializable {
-    public int id;   //添加编号
+    public int itemIndex;   //添加编号
     public int progressTime;  //进度总时间
     public int curProgress;  //当前进度
 }
