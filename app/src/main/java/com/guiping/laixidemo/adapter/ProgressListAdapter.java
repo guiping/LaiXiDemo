@@ -69,12 +69,15 @@ public class ProgressListAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             DetailsViewHolder detailsViewHolder = (DetailsViewHolder) holder;
             UpdateProgressHaldler updateProgressHaldler = updateProgressBar(detailsViewHolder.pbar_details, mList.get(holder.getLayoutPosition() - 1));
             ((DetailsViewHolder) holder).tv_remove.setOnClickListener(view -> {
-                if (holder.getLayoutPosition() - 1 > 0)
+                if (holder.getLayoutPosition() - 1 > 0 && updateProgressHaldler != null)
                     updateProgressHaldler.removeMessages(mList.get(holder.getLayoutPosition() - 1).itemIndex);  //删除handler任务
                 //删除item数据
                 removeItem(holder.getLayoutPosition());
             });
             detailsViewHolder.tv_id.setText(mList.get(holder.getLayoutPosition() - 1).itemIndex + "");
+            if (mList.get(holder.getLayoutPosition() - 1).curProgress == PROGRESS_MAX) {
+                detailsViewHolder.pbar_details.setProgress(PROGRESS_MAX);
+            }
         }
     }
 
@@ -118,6 +121,7 @@ public class ProgressListAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     }
 
     private UpdateProgressHaldler updateProgressBar(ProgressBar progressBar, ProgressEntity progressEntity) {
+        if (progressEntity.curProgress == PROGRESS_MAX) return null;   //如果当前进度值 已经是最大， 就不用处理
         UpdateProgressHaldler updateProgressHaldler = new UpdateProgressHaldler(progressBar, progressEntity);
         Message message = Message.obtain();
         message.what = progressEntity.itemIndex;
@@ -125,9 +129,11 @@ public class ProgressListAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         return updateProgressHaldler;
     }
 
+    final int PROGRESS_MAX = 100;
+
     public class UpdateProgressHaldler extends Handler {
         int progressInterval;
-        final int PROGRESS_MAX = 100;
+
         ProgressBar mProgressBar;
         ProgressEntity mProgressEntity;
 
